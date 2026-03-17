@@ -4,6 +4,7 @@ import { FileUpload } from '@/components/FileUpload';
 import { JobTabs } from '@/components/JobTabs';
 import { IntervalSelector } from '@/components/IntervalSelector';
 import { MetricsComparison } from '@/components/MetricsComparison';
+import { JobRunsList } from '@/components/JobRunsList';
 import { DailyMetricsTable } from '@/components/DailyMetricsTable';
 import { MetricTrendChart, RunCountChart, DurationChart } from '@/components/Charts';
 import { useJobStore, JOB_NAMES_RU } from '@/store/jobStore';
@@ -59,6 +60,9 @@ export default function Home() {
                 
                 {/* Metrics comparison */}
                 <MetricsComparison />
+                
+                {/* Job runs list */}
+                <JobRunsList />
                 
                 {/* Charts */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
