@@ -32,8 +32,8 @@ export function parseAiLogFile(content: string): AiLogParseResult {
   const headerLine = lines[0];
   const headers = parseCsvLine(headerLine);
   
-  // Проверяем обязательные колонки
-  const requiredColumns = ['Id', 'Name', 'StartDate', 'CreatedAt', 'Status', 'EndDate'];
+  // Проверяем обязательные колонки (EndDate не обязателен)
+  const requiredColumns = ['Id', 'Name', 'StartDate', 'CreatedAt', 'Status'];
   const missingColumns = requiredColumns.filter(col => !headers.includes(col));
   
   if (missingColumns.length > 0) {
@@ -149,29 +149,36 @@ function parseAiLogRecord(record: string, columnIndices: Record<string, number>)
   const modelName = getValue('ModelName');
   const spentTokensStr = getValue('SpentTokens');
   
-  // Валидация обязательных полей
-  if (!id || !name || !startDateStr || !createdAtStr || !endDateStr) {
+  // Валидация обязательных полей (EndDate не обязателен)
+  if (!id || !name || !startDateStr || !createdAtStr) {
     return null;
   }
   
   const startDate = parseDateTime(startDateStr);
   const createdAt = parseDateTime(createdAtStr);
-  const endDate = parseDateTime(endDateStr);
+  // EndDate может быть пустым (джоба в процессе выполнения)
+  const endDate = endDateStr && endDateStr.trim() !== '' 
+    ? parseDateTime(endDateStr) 
+    : startDate;
   const status = parseInt(statusStr) || 0;
   
   // Вычисляем durationMs и queueLagMs
   let durationMs = endDate.getTime() - startDate.getTime();
-  if (isNaN(durationMs)) {
+  if (isNaN(durationMs) || durationMs < 0) {
     durationMs = 0;
   }
   
   let queueLagMs = startDate.getTime() - createdAt.getTime();
-  if (isNaN(queueLagMs)) {
+  if (isNaN(queueLagMs) || queueLagMs < 0) {
     queueLagMs = 0;
   }
   
   // Парсим spentTokens (по умолчанию 0)
   const spentTokens = parseInt(spentTokensStr) || 0;
+  
+  // Status = 1 — успех, Status = 3 — ошибка, Status = 0 — в процессе
+  const isSuccess = status === 1;
+  const isError = status === 3;
   
   return {
     id: id.replace(/"/g, ''),
@@ -187,8 +194,8 @@ function parseAiLogRecord(record: string, columnIndices: Record<string, number>)
     spentTokens,
     durationMs,
     queueLagMs,
-    isSuccess: status === 1,
-    isError: status === 3 || status === 2,
+    isSuccess,
+    isError,
   };
 }
 

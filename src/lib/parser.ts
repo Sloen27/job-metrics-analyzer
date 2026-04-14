@@ -94,24 +94,30 @@ function parseJobRecord(record: string): JobLog | null {
   
   const [id, name, startDateStr, endDateStr, statusStr, error, metricsStr] = fields;
   
-  if (!id || !name || !startDateStr || !endDateStr) return null;
+  if (!id || !name || !startDateStr) return null;
   
   const startDate = parseDateTime(startDateStr);
-  const endDate = parseDateTime(endDateStr);
-  const status = parseInt(statusStr) as JobStatus;
+  // EndDate может быть пустым (джоба в процессе выполнения)
+  const endDate = endDateStr && endDateStr.trim() !== '' 
+    ? parseDateTime(endDateStr) 
+    : startDate; // Если EndDate пустой, используем StartDate
+  const status = parseInt(statusStr) || 0;
   
   // Вычисляем длительность и проверяем на NaN
   let duration = endDate.getTime() - startDate.getTime();
-  if (isNaN(duration)) {
+  if (isNaN(duration) || duration < 0) {
     duration = 0;
   }
+  
+  // Status = 1 — успех, Status = 3 — ошибка, Status = 0 — в процессе
+  const jobStatus = status === 3 ? JobStatus.Error : status === 1 ? JobStatus.Success : JobStatus.Success;
   
   return {
     id: id.replace(/"/g, ''),
     name: name.replace(/"/g, ''),
     startDate,
     endDate,
-    status: status || JobStatus.Success,
+    status: jobStatus,
     error: error?.replace(/"/g, '') || '',
     metrics: parseMetrics(metricsStr || ''),
     duration,
