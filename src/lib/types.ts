@@ -20,17 +20,17 @@ export interface JobMetrics {
   // Общие метрики
   processedPosts?: number;
   taggedPosts?: number;
-  
+
   // LLM метрики
   avgLlmTime?: number; // в мс
   totalLlmTime?: number; // в мс
   llmRequestsCount?: number;
-  
+
   // Инфоповоды
   processedInfoEvents?: number;
   avgComments?: number;
   totalComments?: number;
-  
+
   // Telegram метрики
   activeSources?: number;
   processedSources?: number;
@@ -38,12 +38,50 @@ export interface JobMetrics {
   usedAccounts?: number;
   newPosts?: number;
   totalPosts?: number;
-  
+
   // Проценты и доли
   successRate?: number;
   taggedPercent?: number;
   shortPostsPercent?: number;
   shortTrendsPercent?: number;
+
+  // === НОВЫЕ МЕТРИКИ PostTagProcessingJob ===
+  // Распределение тегов
+  postsWith2to4TagsPercent?: number; // Доля постов с 2-4 тегами (%)
+  postsWith1TagPercent?: number; // Доля постов с 1 тегом (%)
+  brokenPostsPercent?: number; // Доля сломанных постов (0 тегов) (%)
+  newPostsTaggedIn2DaysPercent?: number; // Доля протегированных новых постов за два дня (%)
+  
+  // Время тегирования
+  avgTimeToTag?: number; // Среднее время от появления поста до тегирования (в минутах)
+  
+  // Тайминги компонентов (БД, OpenSearch, LLM)
+  dbTimePercent?: number; // Доля времени БД (%)
+  dbTimeMs?: number; // Время БД (мс)
+  dbRequests?: number; // Количество запросов к БД
+  
+  openSearchTimePercent?: number; // Доля времени OpenSearch (%)
+  openSearchTimeMs?: number; // Время OpenSearch (мс)
+  openSearchRequests?: number; // Количество запросов к OpenSearch
+  
+  llmTimePercent?: number; // Доля времени LLM (%)
+  llmTimeMs?: number; // Время LLM (мс) - из строки таймингов
+
+  // === НОВЫЕ МЕТРИКИ TelegramProcessingJob ===
+  proxyChanges?: number; // Суммарное количество смен прокси
+  uniqueProxies?: number; // Количество уникальных прокси
+  avgSourcesPerProxy?: number; // Среднее количество источников на один прокси
+  medianProxyPing?: number; // Медианный пинг прокси (мс)
+  proxyChangeSourcesPercent?: number; // Доля источников со сменой прокси (%)
+
+  // === НОВЫЕ МЕТРИКИ ClusterCommentTrendProcessingJob ===
+  shortTrendsCount?: number; // Количество пустых/коротких трендов
+
+  // === НОВЫЕ МЕТРИКИ TelegramPostCommentTrendProcessingJob ===
+  totalTrackedPosts?: number; // Общее количество постов для всех отслеживаний
+
+  // === НОВЫЕ МЕТРИКИ PostEmotionalAnalysisProcessingJob ===
+  shortTextPostsCount?: number; // Количество постов с очень коротким текстом
 }
 
 // Агрегированные метрики за день

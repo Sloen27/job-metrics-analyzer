@@ -330,7 +330,114 @@ export function parseMetrics(metricsStr: string): JobMetrics {
   if (shortTrendsAltMatch && !metrics.shortTrendsPercent) {
     metrics.shortTrendsPercent = parseFloat(shortTrendsAltMatch[1].replace(',', '.'));
   }
+
+  // === НОВЫЕ МЕТРИКИ PostTagProcessingJob ===
   
+  // Доля постов с 2-4 тегами
+  const posts2to4TagsMatch = normalizedMetrics.match(/Доля постов с 2-4 тегами:\s*([\d.,]+)%/i);
+  if (posts2to4TagsMatch) {
+    metrics.postsWith2to4TagsPercent = parseFloat(posts2to4TagsMatch[1].replace(',', '.'));
+  }
+
+  // Доля постов с 1 тегом
+  const posts1TagMatch = normalizedMetrics.match(/Доля постов с 1 тегом:\s*([\d.,]+)%/i);
+  if (posts1TagMatch) {
+    metrics.postsWith1TagPercent = parseFloat(posts1TagMatch[1].replace(',', '.'));
+  }
+
+  // Доля сломанных постов (0 тегов)
+  const brokenPostsMatch = normalizedMetrics.match(/Доля сломанных постов \(0 тегов\):\s*([\d.,]+)%/i);
+  if (brokenPostsMatch) {
+    metrics.brokenPostsPercent = parseFloat(brokenPostsMatch[1].replace(',', '.'));
+  }
+
+  // Доля протегированных новых постов за два дня
+  const newPostsTaggedMatch = normalizedMetrics.match(/Доля протегированных новых постов за два дня:\s*([\d.,]+)%/i);
+  if (newPostsTaggedMatch) {
+    metrics.newPostsTaggedIn2DaysPercent = parseFloat(newPostsTaggedMatch[1].replace(',', '.'));
+  }
+
+  // Среднее время от появления поста до тегирования
+  const avgTimeToTagMatch = normalizedMetrics.match(/Среднее время от появления поста до тегирования:\s*([\d.,]+)\s*(мин|ч)/i);
+  if (avgTimeToTagMatch) {
+    const value = parseFloat(avgTimeToTagMatch[1].replace(',', '.'));
+    // Если указано в часах, конвертируем в минуты
+    metrics.avgTimeToTag = avgTimeToTagMatch[2] === 'ч' ? value * 60 : value;
+  }
+
+  // Парсинг таймингов: БД: 1.02% / ( 11315 мс / 1521 запросов)
+  const dbTimingMatch = normalizedMetrics.match(/БД:\s*([\d.,]+)%\s*\/\s*\(\s*([\d\s]+)\s*мс\s*\/\s*([\d\s]+)\s*запросов?\)/i);
+  if (dbTimingMatch) {
+    metrics.dbTimePercent = parseFloat(dbTimingMatch[1].replace(',', '.'));
+    metrics.dbTimeMs = parseNumber(dbTimingMatch[2]);
+    metrics.dbRequests = parseNumber(dbTimingMatch[3]);
+  }
+
+  // Парсинг таймингов OpenSearch: OpenSearch: 0.29% / ( 3155 мс / 69 запросов)
+  const openSearchTimingMatch = normalizedMetrics.match(/OpenSearch:\s*([\d.,]+)%\s*\/\s*\(\s*([\d\s]+)\s*мс\s*\/\s*([\d\s]+)\s*запросов?\)/i);
+  if (openSearchTimingMatch) {
+    metrics.openSearchTimePercent = parseFloat(openSearchTimingMatch[1].replace(',', '.'));
+    metrics.openSearchTimeMs = parseNumber(openSearchTimingMatch[2]);
+    metrics.openSearchRequests = parseNumber(openSearchTimingMatch[3]);
+  }
+
+  // Парсинг таймингов LLM: LLM: 85.42% / (944321 мс / 1500 запросов)
+  const llmTimingMatch = normalizedMetrics.match(/LLM:\s*([\d.,]+)%\s*\/\s*\(\s*([\d\s]+)\s*мс\s*\/\s*([\d\s]+)\s*запросов?\)/i);
+  if (llmTimingMatch) {
+    metrics.llmTimePercent = parseFloat(llmTimingMatch[1].replace(',', '.'));
+    metrics.llmTimeMs = parseNumber(llmTimingMatch[2]);
+    // llmRequestsCount уже может быть установлен, обновляем только если пусто
+    if (!metrics.llmRequestsCount) {
+      metrics.llmRequestsCount = parseNumber(llmTimingMatch[3]);
+    }
+  }
+
+  // === НОВЫЕ МЕТРИКИ TelegramProcessingJob ===
+  
+  // Суммарное количество смен прокси
+  const proxyChangesMatch = normalizedMetrics.match(/Суммарное количество смен прокси:\s*([\d\s]+)/i);
+  if (proxyChangesMatch) {
+    metrics.proxyChanges = parseNumber(proxyChangesMatch[1]);
+  }
+
+  // Количество уникальных прокси
+  const uniqueProxiesMatch = normalizedMetrics.match(/Количество уникальных прокси:\s*([\d\s]+)/i);
+  if (uniqueProxiesMatch) {
+    metrics.uniqueProxies = parseNumber(uniqueProxiesMatch[1]);
+  }
+
+  // Среднее количество источников на один прокси
+  const avgSourcesPerProxyMatch = normalizedMetrics.match(/Среднее количество источников на один прокси:\s*([\d\s,.]+)/i);
+  if (avgSourcesPerProxyMatch) {
+    metrics.avgSourcesPerProxy = parseFloat(avgSourcesPerProxyMatch[1].replace(/\s/g, '').replace(',', '.'));
+  }
+
+  // Медианный пинг прокси
+  const medianProxyPingMatch = normalizedMetrics.match(/Медианный пинг прокси:\s*([\d\s]+)\s*мс/i);
+  if (medianProxyPingMatch) {
+    metrics.medianProxyPing = parseNumber(medianProxyPingMatch[1]);
+  }
+
+  // Доля источников со сменой прокси
+  const proxyChangeSourcesMatch = normalizedMetrics.match(/Доля источников со сменой прокси:\s*([\d,]+)%/i);
+  if (proxyChangeSourcesMatch) {
+    metrics.proxyChangeSourcesPercent = parseFloat(proxyChangeSourcesMatch[1].replace(',', '.'));
+  }
+
+  // === НОВЫЕ МЕТРИКИ TelegramPostCommentTrendProcessingJob ===
+  
+  // Общее количество постов для всех отслеживаний
+  const totalTrackedPostsMatch = normalizedMetrics.match(/Общее количество постов для всех отслеживаний:\s*([\d\s]+)/i);
+  if (totalTrackedPostsMatch) {
+    metrics.totalTrackedPosts = parseNumber(totalTrackedPostsMatch[1]);
+  }
+
+  // Альтернативный формат LLM запросов (для PostTagProcessingJob в процессе)
+  const llmRequestsSimpleMatch = normalizedMetrics.match(/LLM запросов:\s*([\d\s]+)/i);
+  if (llmRequestsSimpleMatch && !metrics.llmRequestsCount) {
+    metrics.llmRequestsCount = parseNumber(llmRequestsSimpleMatch[1]);
+  }
+
   return metrics;
 }
 

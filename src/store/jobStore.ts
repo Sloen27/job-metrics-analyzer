@@ -231,6 +231,69 @@ function aggregateDailyMetrics(dayJobs: JobLog[]): AggregatedJobMetrics {
   if (shortTrends.length > 0) {
     metrics.avgShortTrendsPercent = shortTrends.reduce((sum, j) => sum + (j.metrics.shortTrendsPercent || 0), 0) / shortTrends.length;
   }
+
+  // === НОВЫЕ МЕТРИКИ PostTagProcessingJob ===
+  const posts2to4Tags = dayJobs.filter(j => j.metrics.postsWith2to4TagsPercent !== undefined);
+  if (posts2to4Tags.length > 0) {
+    (metrics as any).avgPostsWith2to4Tags = posts2to4Tags.reduce((sum, j) => sum + (j.metrics.postsWith2to4TagsPercent || 0), 0) / posts2to4Tags.length;
+  }
+
+  const posts1Tag = dayJobs.filter(j => j.metrics.postsWith1TagPercent !== undefined);
+  if (posts1Tag.length > 0) {
+    (metrics as any).avgPostsWith1Tag = posts1Tag.reduce((sum, j) => sum + (j.metrics.postsWith1TagPercent || 0), 0) / posts1Tag.length;
+  }
+
+  const brokenPosts = dayJobs.filter(j => j.metrics.brokenPostsPercent !== undefined);
+  if (brokenPosts.length > 0) {
+    (metrics as any).avgBrokenPosts = brokenPosts.reduce((sum, j) => sum + (j.metrics.brokenPostsPercent || 0), 0) / brokenPosts.length;
+  }
+
+  const newPostsTagged = dayJobs.filter(j => j.metrics.newPostsTaggedIn2DaysPercent !== undefined);
+  if (newPostsTagged.length > 0) {
+    (metrics as any).avgNewPostsTagged = newPostsTagged.reduce((sum, j) => sum + (j.metrics.newPostsTaggedIn2DaysPercent || 0), 0) / newPostsTagged.length;
+  }
+
+  const avgTimeToTag = dayJobs.filter(j => j.metrics.avgTimeToTag !== undefined);
+  if (avgTimeToTag.length > 0) {
+    (metrics as any).avgTimeToTag = avgTimeToTag.reduce((sum, j) => sum + (j.metrics.avgTimeToTag || 0), 0) / avgTimeToTag.length;
+  }
+
+  // Тайминги компонентов
+  const dbTime = dayJobs.filter(j => j.metrics.dbTimePercent !== undefined);
+  if (dbTime.length > 0) {
+    (metrics as any).avgDbTime = dbTime.reduce((sum, j) => sum + (j.metrics.dbTimePercent || 0), 0) / dbTime.length;
+  }
+
+  const openSearchTime = dayJobs.filter(j => j.metrics.openSearchTimePercent !== undefined);
+  if (openSearchTime.length > 0) {
+    (metrics as any).avgOpenSearchTime = openSearchTime.reduce((sum, j) => sum + (j.metrics.openSearchTimePercent || 0), 0) / openSearchTime.length;
+  }
+
+  const llmTimePercent = dayJobs.filter(j => j.metrics.llmTimePercent !== undefined);
+  if (llmTimePercent.length > 0) {
+    (metrics as any).avgLlmTimePercent = llmTimePercent.reduce((sum, j) => sum + (j.metrics.llmTimePercent || 0), 0) / llmTimePercent.length;
+  }
+
+  // === НОВЫЕ МЕТРИКИ TelegramProcessingJob ===
+  const proxyChanges = dayJobs.filter(j => j.metrics.proxyChanges !== undefined);
+  if (proxyChanges.length > 0) {
+    (metrics as any).avgProxyChanges = proxyChanges.reduce((sum, j) => sum + (j.metrics.proxyChanges || 0), 0) / proxyChanges.length;
+  }
+
+  const uniqueProxies = dayJobs.filter(j => j.metrics.uniqueProxies !== undefined);
+  if (uniqueProxies.length > 0) {
+    (metrics as any).avgUniqueProxies = uniqueProxies.reduce((sum, j) => sum + (j.metrics.uniqueProxies || 0), 0) / uniqueProxies.length;
+  }
+
+  const medianProxyPing = dayJobs.filter(j => j.metrics.medianProxyPing !== undefined);
+  if (medianProxyPing.length > 0) {
+    (metrics as any).avgMedianProxyPing = medianProxyPing.reduce((sum, j) => sum + (j.metrics.medianProxyPing || 0), 0) / medianProxyPing.length;
+  }
+
+  const proxyChangePercent = dayJobs.filter(j => j.metrics.proxyChangeSourcesPercent !== undefined);
+  if (proxyChangePercent.length > 0) {
+    (metrics as any).avgProxyChangePercent = proxyChangePercent.reduce((sum, j) => sum + (j.metrics.proxyChangeSourcesPercent || 0), 0) / proxyChangePercent.length;
+  }
   
   return metrics;
 }

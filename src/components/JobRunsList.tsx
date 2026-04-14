@@ -98,6 +98,66 @@ function extractKeyMetrics(job: JobLog): { label: string; value: string }[] {
   if (job.metrics.shortPostsPercent !== undefined) {
     metrics.push({ label: 'Коротких', value: `${job.metrics.shortPostsPercent.toFixed(1)}%` });
   }
+
+  // === НОВЫЕ МЕТРИКИ PostTagProcessingJob ===
+  if (job.metrics.postsWith2to4TagsPercent !== undefined) {
+    metrics.push({ label: '2-4 тега', value: `${job.metrics.postsWith2to4TagsPercent.toFixed(1)}%` });
+  }
+
+  if (job.metrics.postsWith1TagPercent !== undefined) {
+    metrics.push({ label: '1 тег', value: `${job.metrics.postsWith1TagPercent.toFixed(1)}%` });
+  }
+
+  if (job.metrics.brokenPostsPercent !== undefined) {
+    metrics.push({ label: 'Сломанных', value: `${job.metrics.brokenPostsPercent.toFixed(2)}%` });
+  }
+
+  if (job.metrics.newPostsTaggedIn2DaysPercent !== undefined) {
+    metrics.push({ label: 'Новых за 2 дня', value: `${job.metrics.newPostsTaggedIn2DaysPercent.toFixed(1)}%` });
+  }
+
+  if (job.metrics.avgTimeToTag !== undefined) {
+    metrics.push({ label: 'Ср.время до тега', value: `${job.metrics.avgTimeToTag.toFixed(1)} мин` });
+  }
+
+  // Тайминги компонентов
+  if (job.metrics.dbTimePercent !== undefined) {
+    metrics.push({ label: 'БД', value: `${job.metrics.dbTimePercent.toFixed(1)}%` });
+  }
+
+  if (job.metrics.openSearchTimePercent !== undefined) {
+    metrics.push({ label: 'OpenSearch', value: `${job.metrics.openSearchTimePercent.toFixed(1)}%` });
+  }
+
+  if (job.metrics.llmTimePercent !== undefined) {
+    metrics.push({ label: 'LLM доля', value: `${job.metrics.llmTimePercent.toFixed(1)}%` });
+  }
+
+  // === НОВЫЕ МЕТРИКИ TelegramProcessingJob ===
+  if (job.metrics.proxyChanges !== undefined) {
+    metrics.push({ label: 'Смен прокси', value: job.metrics.proxyChanges.toLocaleString('ru-RU') });
+  }
+
+  if (job.metrics.uniqueProxies !== undefined) {
+    metrics.push({ label: 'Уник. прокси', value: job.metrics.uniqueProxies.toLocaleString('ru-RU') });
+  }
+
+  if (job.metrics.medianProxyPing !== undefined) {
+    metrics.push({ label: 'Пинг прокси', value: `${job.metrics.medianProxyPing} мс` });
+  }
+
+  if (job.metrics.proxyChangeSourcesPercent !== undefined) {
+    metrics.push({ label: 'Смена прокси', value: `${job.metrics.proxyChangeSourcesPercent.toFixed(1)}%` });
+  }
+
+  if (job.metrics.avgSourcesPerProxy !== undefined) {
+    metrics.push({ label: 'Ист. на прокси', value: job.metrics.avgSourcesPerProxy.toLocaleString('ru-RU', { maximumFractionDigits: 1 }) });
+  }
+
+  // === НОВЫЕ МЕТРИКИ TelegramPostCommentTrendProcessingJob ===
+  if (job.metrics.totalTrackedPosts !== undefined) {
+    metrics.push({ label: 'Отслеживаемых', value: job.metrics.totalTrackedPosts.toLocaleString('ru-RU') });
+  }
   
   return metrics;
 }

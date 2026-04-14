@@ -221,6 +221,75 @@ export function JobMetricsDetail() {
               <span className="font-mono">{formatNumber(stat.metrics.totalNewPosts)}</span>
             </div>
           )}
+
+          {/* Новые метрики для PostTagProcessingJob - агрегированные */}
+          {stat.name === 'PostTagProcessingJob' && (
+            <>
+              <div className="border-t pt-3 mt-3">
+                <h5 className="text-sm font-medium text-muted-foreground mb-2">Распределение тегов</h5>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Ср. доля 2-4 тегов:</span>
+                    <span className="font-mono">{(stat.metrics as any).avgPostsWith2to4Tags?.toFixed(1) || '—'}%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Ср. доля 1 тега:</span>
+                    <span className="font-mono">{(stat.metrics as any).avgPostsWith1Tag?.toFixed(1) || '—'}%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Ср. сломанных:</span>
+                    <span className="font-mono">{(stat.metrics as any).avgBrokenPosts?.toFixed(2) || '—'}%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Ср. новых за 2 дня:</span>
+                    <span className="font-mono">{(stat.metrics as any).avgNewPostsTagged?.toFixed(1) || '—'}%</span>
+                  </div>
+                </div>
+              </div>
+              <div className="border-t pt-3 mt-3">
+                <h5 className="text-sm font-medium text-muted-foreground mb-2">Тайминги компонентов</h5>
+                <div className="grid grid-cols-3 gap-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">БД:</span>
+                    <span className="font-mono">{(stat.metrics as any).avgDbTime?.toFixed(1) || '—'}%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">OpenSearch:</span>
+                    <span className="font-mono">{(stat.metrics as any).avgOpenSearchTime?.toFixed(1) || '—'}%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">LLM:</span>
+                    <span className="font-mono">{(stat.metrics as any).avgLlmTimePercent?.toFixed(1) || '—'}%</span>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Новые метрики для TelegramProcessingJob - агрегированные */}
+          {stat.name === 'TelegramProcessingJob' && (
+            <div className="border-t pt-3 mt-3">
+              <h5 className="text-sm font-medium text-muted-foreground mb-2">Прокси и источники</h5>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Ср. смен прокси:</span>
+                  <span className="font-mono">{(stat.metrics as any).avgProxyChanges?.toFixed(1) || '—'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Ср. уник. прокси:</span>
+                  <span className="font-mono">{(stat.metrics as any).avgUniqueProxies?.toFixed(1) || '—'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Ср. пинг прокси:</span>
+                  <span className="font-mono">{(stat.metrics as any).avgMedianProxyPing?.toFixed(0) || '—'} мс</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Доля смены прокси:</span>
+                  <span className="font-mono">{(stat.metrics as any).avgProxyChangePercent?.toFixed(2) || '—'}%</span>
+                </div>
+              </div>
+            </div>
+          )}
           
           {/* Если нет специфичных метрик */}
           {Object.keys(stat.metrics).length === 0 && (
